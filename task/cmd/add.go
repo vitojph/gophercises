@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/vitojph/gophercises/task/db"
 )
 
 var addCmd = &cobra.Command{
@@ -12,7 +13,12 @@ var addCmd = &cobra.Command{
 	Short: "Add a new task to your TODO list",
 	Run: func(cmd *cobra.Command, args []string) {
 		task := strings.Join(args, " ")
-		fmt.Printf("'%s' added to your TODO list,\n", task)
+		_, err := db.CreateTask(task)
+		if err != nil {
+			fmt.Println("Ooops, something went wrong:", err.Error())
+			return
+		}
+		fmt.Printf("'%s' added to your TODO list\n", task)
 	},
 }
 
