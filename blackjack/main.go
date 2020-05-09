@@ -75,6 +75,12 @@ func main() {
 			player = append(player, card)
 		}
 	}
+	// the dealer will draw if score <= 16 or it's a soft 17
+	if dealer.Score() <= 16 || (dealer.Score() == 17 && dealer.MinScore() != 17) {
+		card, cards = draw(cards)
+		dealer = append(dealer, card)
+	}
+
 	pScore, dScore := player.MinScore(), dealer.MinScore()
 	fmt.Println("== FINAL HANDS ==")
 	fmt.Println("Player:", player, "\nScore:", pScore)
