@@ -12,13 +12,34 @@ type AI interface {
 	Results(hand [][]deck.Card, dealer []deck.Card)
 }
 
-type HumanIntelligence struct{}
+type dealerAI struct{}
 
-func (ai *HumanIntelligence) Bet() int {
+func (ai dealerAI) Bet() int {
 	return 1
 }
 
-func (ai *HumanIntelligence) Play(hand []deck.Card, dealer deck.Card) Move {
+func (ai dealerAI) Play(hand []deck.Card, dealer deck.Card) Move {
+	dealerScore := Score(hand...)
+	if dealerScore <= 16 || dealerScore == 17 && Soft(hand...) {
+		return MoveHit
+	}
+	return MoveStand
+}
+
+func (ai dealerAI) Results(hand [][]deck.Card, dealer []deck.Card) {
+}
+
+func HumanIntelligence() AI {
+	return humanIntelligence{}
+}
+
+type humanIntelligence struct{}
+
+func (ai humanIntelligence) Bet() int {
+	return 1
+}
+
+func (ai humanIntelligence) Play(hand []deck.Card, dealer deck.Card) Move {
 	for {
 		fmt.Println("Player:", hand)
 		fmt.Println("Dealer:", dealer)
@@ -27,30 +48,17 @@ func (ai *HumanIntelligence) Play(hand []deck.Card, dealer deck.Card) Move {
 		fmt.Scanf("%s\n", &input)
 		switch input {
 		case "h":
-			Hit
+			return MoveHit
 		case "s":
-			Stand
+			return MoveStand
 		default:
 			fmt.Println("Invalid option, try again!")
 		}
 	}
 }
 
-func (ai *HumanIntelligence) Results(hand [][]deck.Card, dealer []deck.Card) {}
+func (ai humanIntelligence) Results(hand [][]deck.Card, dealer []deck.Card) {
 	fmt.Println("== FINAL HANDS ==")
 	fmt.Println("Player:", hand)
 	fmt.Println("Dealer:", dealer)
-}
-
-
-type Move func(GameState) GameState
-
-type GameState struct{}
-
-func Hit(gs GameState) GameState {
-	return gs
-}
-
-func Stand(gs GameState) GameState {
-	return gs
 }
