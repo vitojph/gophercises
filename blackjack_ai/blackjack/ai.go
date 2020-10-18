@@ -7,14 +7,14 @@ import (
 )
 
 type AI interface {
-	Bet() int
+	Bet(shuffled bool) int
 	Play(hand []deck.Card, dealer deck.Card) Move
 	Results(hand [][]deck.Card, dealer []deck.Card)
 }
 
 type dealerAI struct{}
 
-func (ai dealerAI) Bet() int {
+func (ai dealerAI) Bet(shuffled bool) int {
 	return 1
 }
 
@@ -35,8 +35,14 @@ func HumanIntelligence() AI {
 
 type humanIntelligence struct{}
 
-func (ai humanIntelligence) Bet() int {
-	return 1
+func (ai humanIntelligence) Bet(shuffled bool) int {
+	if shuffled {
+		fmt.Println("The deck was just shuffled")
+	}
+	fmt.Println("What would you like to bet?")
+	var bet int
+	fmt.Scanf("%d\n", &bet)
+	return bet
 }
 
 func (ai humanIntelligence) Play(hand []deck.Card, dealer deck.Card) Move {
