@@ -3,15 +3,20 @@ package secret
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
-	"log"
 	"os"
-	"strings"
 	"sync"
 
-	"github.com/vitojph/gophercises/secret/encrypt"
+	"github.com/vitojph/gophercises/secret/cipher"
 )
+
+// Vault stores an encoding key
+type Vault struct {
+	filepath    string
+	encodingKey string
+	mutex       sync.Mutex
+	keyValues   map[string]string
+}
 
 // File creates a file vault
 func File(filepath, encodingKey string) (*Vault, error) {
@@ -22,61 +27,41 @@ func File(filepath, encodingKey string) (*Vault, error) {
 	}, nil
 }
 
-// Vault stores an encoding key
-type Vault struct {
-	filepath    string
-	encodingKey string
-	mutex       sync.Mutex
-	keyValues   map[string]string
-}
-
-func (v *Vault) loadKeyValues() error {
+func (v *Vault) load() error {
 	f, err := os.Open(v.filepath)
 	if err != nil {
 		v.keyValues = make(map[string]string)
 		return nil
 	}
 	defer f.Close()
-	var sb strings.Builder
-	_, err = io.Copy(&sb, f)
+	r, err := cipher.DecryptReader(v.encodingKey, f)
 	if err != nil {
 		return err
 	}
-	decryptedJSON, err := encrypt.Decrypt(v.encodingKey, sb.String())
-	if err != nil {
-		return err
-	}
-	log.Println(decryptedJSON)
-	r := strings.NewReader(decryptedJSON)
-	dec := json.NewDecoder(r)
-	err = dec.Decode(&v.keyValues)
-	if err != nil {
-		return err
-	}
-	return nil
+	return v.readKeyValues(r)
 }
 
-func (v *Vault) saveKeyValues() error {
-	var sb strings.Builder
-	enc := json.NewEncoder(&sb)
-	err := enc.Encode(v.keyValues)
-	if err != nil {
-		return err
-	}
-	encryptedJSON, err := encrypt.Encrypt(v.encodingKey, sb.String())
-	if err != nil {
-		return err
-	}
-	f, err := os.OpenFile(v.filepath, os.O_RDWR|os.O_CREATE, 0755)
+func (v *Vault) readKeyValues(r io.Reader) error {
+	dec := json.NewDecoder(r) // -> decryptReader -> file
+	return dec.Decode(&v.keyValues)
+}
+
+func (v *Vault) save() error {
+	f, err := os.OpenFile(v.filepath, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	_, err = fmt.Fprint(f, encryptedJSON)
+	w, err := cipher.EncryptWriter(v.encodingKey, f)
 	if err != nil {
 		return err
 	}
-	return nil
+	return v.writeKeyValues(w)
+}
+
+func (v *Vault) writeKeyValues(w io.Writer) error {
+	enc := json.NewEncoder(w) // encryptWriter -> file
+	return enc.Encode(&v.keyValues)
 }
 
 // Get the value of a set key
@@ -84,7 +69,7 @@ func (v *Vault) Get(key string) (string, error) {
 	v.mutex.Lock()
 	defer v.mutex.Unlock()
 
-	err := v.loadKeyValues()
+	err := v.load()
 	if err != nil {
 		return "", err
 	}
@@ -100,11 +85,11 @@ func (v *Vault) Set(key, value string) error {
 	v.mutex.Lock()
 	defer v.mutex.Unlock()
 
-	err := v.loadKeyValues()
+	err := v.load()
 	if err != nil {
 		return err
 	}
 	v.keyValues[key] = value
-	err = v.saveKeyValues()
+	err = v.save()
 	return err
 }
