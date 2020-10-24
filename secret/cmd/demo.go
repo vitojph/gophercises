@@ -7,13 +7,24 @@ import (
 )
 
 func main() {
-	v := secret.Memory("my-fake-key")
-	err := v.Set("twitter", "my twitter password")
+	v, err := secret.File(".secrets.txt", "my-fake-key")
+	if err != nil {
+		panic(err)
+	}
+	err = v.Set("account1", "my password one")
+	if err != nil {
+		panic(err)
+	}
+	err = v.Set("account2", "my password two")
+	if err != nil {
+		panic(err)
+	}
+	err = v.Set("account3", "my password three")
 	if err != nil {
 		panic(err)
 	}
 
-	plain, err := v.Get("twitter")
+	plain, err := v.Get("account2")
 	if err != nil {
 		panic(err)
 	}
