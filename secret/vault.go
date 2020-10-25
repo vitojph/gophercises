@@ -96,20 +96,40 @@ func (v *Vault) Set(key, value string) error {
 }
 
 // ListSecrets returns the list of secrets stored
-func (v *Vault) ListSecrets() []string {
+func (v *Vault) ListSecrets() ([]string, error) {
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
+
+	err := v.load()
+	if err != nil {
+		return nil, err
+	}
+
 	secrets := make([]string, 0, len(v.keyValues))
 	for k := range v.keyValues {
 		secrets = append(secrets, k)
 	}
-	return secrets
+	return secrets, nil
 }
 
 // Remove deletes a secret
-func (v *Vault) Remove(k string) string {
+func (v *Vault) Remove(k string) (string, error) {
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
+
+	err := v.load()
+	if err != nil {
+		return "", err
+	}
+
 	_, ok := v.keyValues[k]
 	if ok {
 		delete(v.keyValues, k)
-		return fmt.Sprintf("%s was successfully deleted", k)
+		err = v.save()
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("💥 %s was successfully deleted 💥", k), nil
 	}
-	return fmt.Sprintf("%s not found in your vault", k)
+	return "", errors.New("secret: no value for that key")
 }

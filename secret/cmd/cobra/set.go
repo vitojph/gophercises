@@ -21,7 +21,6 @@ var SetCmd = &cobra.Command{
 			panic(err)
 		}
 		fmt.Printf("✨ Secret successfully set for %s! ✨\n", key)
-
 	},
 }
 

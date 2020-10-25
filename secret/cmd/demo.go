@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	v, err := secret.File(".secrets", "my-fake-key")
+	v, err := secret.File(".secrets", "this_is_a_key")
 	if err != nil {
 		panic(err)
 	}
@@ -34,12 +34,12 @@ func main() {
 	}
 	log.Println("Account:", account, "Plain pass:", plain)
 
-	keys := v.ListSecrets()
+	keys, _ := v.ListSecrets()
 	log.Println("Available keys:", keys)
 
 	log.Println("Removing one key")
 	v.Remove("account1")
 
-	keys = v.ListSecrets()
+	keys, _ = v.ListSecrets()
 	log.Println("Available keys:", keys)
 }

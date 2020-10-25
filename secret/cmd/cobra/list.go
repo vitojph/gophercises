@@ -15,11 +15,13 @@ var ListSecretsCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-		secrets := v.ListSecrets()
+		keys, _ := v.ListSecrets()
+		fmt.Println("Available keys:", keys)
+		/*secrets := v.ListSecrets()
 		fmt.Println("Secrets stored 🤫:")
-		for _, s := range secrets {
-			fmt.Printf("- %s", s)
-		}
+		for _, secret := range secrets {
+			fmt.Printf("- %s\n", secret)
+		}*/
 	},
 }
 

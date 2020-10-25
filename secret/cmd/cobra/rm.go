@@ -16,7 +16,12 @@ var RemoveCmd = &cobra.Command{
 			panic(err)
 		}
 		key := args[0]
-		fmt.Println(v.Remove(key))
+		res, err := v.Remove(key)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(res)
 	},
 }
 
