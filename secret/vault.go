@@ -3,6 +3,7 @@ package secret
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"sync"
@@ -92,4 +93,23 @@ func (v *Vault) Set(key, value string) error {
 	v.keyValues[key] = value
 	err = v.save()
 	return err
+}
+
+// ListSecrets returns the list of secrets stored
+func (v *Vault) ListSecrets() []string {
+	secrets := make([]string, 0, len(v.keyValues))
+	for k := range v.keyValues {
+		secrets = append(secrets, k)
+	}
+	return secrets
+}
+
+// Remove deletes a secret
+func (v *Vault) Remove(k string) string {
+	_, ok := v.keyValues[k]
+	if ok {
+		delete(v.keyValues, k)
+		return fmt.Sprintf("%s was successfully deleted", k)
+	}
+	return fmt.Sprintf("%s not found in your vault", k)
 }

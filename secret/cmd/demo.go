@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/vitojph/gophercises/secret"
@@ -33,5 +32,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Account:", account, "Plain pass:", plain)
+	log.Println("Account:", account, "Plain pass:", plain)
+
+	keys := v.ListSecrets()
+	log.Println("Available keys:", keys)
+
+	log.Println("Removing one key")
+	v.Remove("account1")
+
+	keys = v.ListSecrets()
+	log.Println("Available keys:", keys)
 }
