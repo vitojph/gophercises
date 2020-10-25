@@ -11,7 +11,7 @@ var GetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Gets a secret from your secret storage",
 	Run: func(cmd *cobra.Command, args []string) {
-		v, err := secret.File(secretsPath(), "my-secret-key")
+		v, err := secret.File(secretsPath(), encodingKey)
 		if err != nil {
 			panic(err)
 		}
