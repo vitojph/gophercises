@@ -1,13 +1,21 @@
 package main
 
 import (
+<<<<<<< HEAD
+=======
+	"fmt"
+>>>>>>> b77644cc79295994784c3ce84ab69d5eb1cd3feb
 	"log"
 
 	"github.com/vitojph/gophercises/secret"
 )
 
 func main() {
+<<<<<<< HEAD
 	v, err := secret.File(".secrets", "this_is_a_key")
+=======
+	v, err := secret.File(".secrets", "my-fake-key")
+>>>>>>> b77644cc79295994784c3ce84ab69d5eb1cd3feb
 	if err != nil {
 		panic(err)
 	}
@@ -32,6 +40,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+<<<<<<< HEAD
 	log.Println("Account:", account, "Plain pass:", plain)
 
 	keys, _ := v.ListSecrets()
@@ -42,4 +51,7 @@ func main() {
 
 	keys, _ = v.ListSecrets()
 	log.Println("Available keys:", keys)
+=======
+	fmt.Println("Account:", account, "Plain pass:", plain)
+>>>>>>> b77644cc79295994784c3ce84ab69d5eb1cd3feb
 }
